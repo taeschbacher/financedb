@@ -9,7 +9,7 @@ def download_and_clean_fx_data():
     csv_url = "https://data.snb.ch/api/cube/devkum/data/csv/de"
 
     # Download CSV file
-    response = requests.get(csv_url)
+    response = requests.get(csv_url, timeout=60)
     raw_data = response.content
 
     # Detect encoding
@@ -74,7 +74,7 @@ def download_and_clean_market_data():
     csv_url = "https://www.six-group.com/fqs/closing.csv?select=ShortName,ISIN,ValorSymbol,ValorNumber,ClosingPrice,LatestTradeDate,TotalVolume,TradingBaseCurrency,Exchange&where=ProductLine=ET&pagesize=10000"
 
     # Download CSV file
-    response = requests.get(csv_url)
+    response = requests.get(csv_url, timeout=60)
     raw_data = response.content
 
     # Detect encoding
@@ -111,10 +111,10 @@ def download_and_clean_market_data():
 
 def insert_fx_data_to_db(df):
     # Define the path to the database file
-    db_path = os.path.join(os.path.dirname(__file__), '..', '..', 'db', 'market_data.db')
+    DB_PATH = os.environ.get("DB_PATH", "/app/db/market_data.db")
 
     # Connect to SQLite database
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     # Create table with COMPOUND PRIMARY KEY
@@ -151,10 +151,10 @@ def insert_fx_data_to_db(df):
 
 def insert_market_data_to_db(df):
     # Define the path to the database file
-    db_path = os.path.join(os.path.dirname(__file__), '..', '..', 'db', 'market_data.db')
+    DB_PATH = os.environ.get("DB_PATH", "/app/db/market_data.db")
 
     # Connect to SQLite database
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     # Create table with COMPOUND PRIMARY KEY

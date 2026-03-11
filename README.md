@@ -2,66 +2,118 @@
 
 This is an ETF and FX rate collector geared towards Swiss investors.
 
-It collects all ETFs traded on the Swiss stock exchange (SIX) every day and collects monthly FX rates from the Swiss National Bank (SNB).
+It collects all ETFs traded on the Swiss stock exchange (SIX) every day
+and collects monthly FX rates from the Swiss National Bank (SNB).
 
-It writes the data into a `sqlite3` database.  
-Use case: the script is intended to be run on a Linux server.
+It writes the data into a `sqlite3` database.\
+Use case: the script is intended to be run via a containerized solution
+on a Linux server.
 
 # Setup
 
-**1. Create a Python virtual environment called `venv`**
+## 1. Clone the repository
 
-```bash
-python -m venv venv
+## 2. Install Docker or Podman
+
+Make sure **either Docker or Podman** is installed on the system.
+
+Only **one container runtime is required**.
+
+## 3. Build the container image
+
+### Docker
+
+``` bash
+chmod +x build_docker.sh
+./build_docker.sh
 ```
 
-**2. Activate the virtual environment**
+### Podman
 
-```bash
-. venv/bin/activate
+``` bash
+chmod +x build_podman.sh
+./build_podman.sh
 ```
 
-**3. Install the required Python packages into the virtual environment**
+## 4. Run the container manually (initial test)
 
-```bash
-pip install -r requirements.txt
+Before setting up automation, run the container once manually to verify
+everything works.
+
+### Docker
+
+``` bash
+chmod +x run_docker.sh
+./run_docker.sh
 ```
 
-**4. Give executable rights to `run.sh`**
+### Podman
 
-```bash
-chmod +x run.sh
+``` bash
+chmod +x run_podman.sh
+./run_podman.sh
 ```
 
-**5. Set up a cron job to execute `run.sh` every 12 hours and log executions**
+## 5. Set up a cron job
 
-Example (adjust the path as needed):
+The script is designed to run periodically via `cron`.
 
-```bash
-0 */12 * * * echo "$(date '+\%Y-\%m-\%d \%H:\%M:\%S') - Running script" >> /home/ubuntu/git-clones/github/user-repos/financedb/logs/cron.log 2>&1 && /home/ubuntu/git-clones/github/user-repos/financedb/run.sh >> /home/ubuntu/git-clones/github/user-repos/financedb/logs/cron.log 2>&1
+Edit your crontab:
+
+``` bash
+crontab -e
 ```
+
+### Example: Run every 12 hours using Docker
+
+Adjust paths as needed.
+
+``` bash
+0 */12 * * * echo "$(date '+\%Y-\%m-\%d \%H:\%M:\%S') - Running script" >> /home/ubuntu/git-clones/github/user-repos/financedb/logs/cron.log 2>&1 && /home/ubuntu/git-clones/github/user-repos/financedb/run_docker.sh >> /home/ubuntu/git-clones/github/user-repos/financedb/logs/cron.log 2>&1
+```
+
+### Example: Run every 12 hours using Podman
+
+``` bash
+0 */12 * * * echo "$(date '+\%Y-\%m-\%d \%H:\%M:\%S') - Running script" >> /home/ubuntu/git-clones/github/user-repos/financedb/logs/cron.log 2>&1 && /home/ubuntu/git-clones/github/user-repos/financedb/run_podman.sh >> /home/ubuntu/git-clones/github/user-repos/financedb/logs/cron.log 2>&1
+```
+
+# Database Location
+
+The SQLite database is stored locally in:
+
+    db/market_data.db
+
+The database directory is mounted into the container so that data
+persists across container runs.
 
 # Backup and Restore of the Database
 
-Backups and restores are easily possible by sending/receiving files to/from the server.
+Backups and restores are easily possible by sending/receiving files
+to/from the server.
 
-Example using Windows (with PuTTY) and Linux server.
+These examples assume that you have a `~/.ssh/config`, e.g.:
 
-**PuTTY File Transfer Guide:**  
-[https://the.earth.li/~sgtatham/putty/0.60/htmldoc/Chapter5.html](https://the.earth.li/~sgtatham/putty/0.60/htmldoc/Chapter5.html)
-
-## Send a file from Windows to the Linux server
-
-(Adjust path and server details)
-
-```bash
-pscp -i .\financedb_private.ppk C:\PATH\financedb\market_data.db ubuntu@IP:/home/ubuntu/git-clones/github/user-repos/financedb/db/
+``` bash
+Host financedb
+    HostName IP
+    User ubuntu
+    Port PORT
+    IdentityFile ~/.ssh/financedb
 ```
 
-## Receive a file on Windows from the Linux server
+## Send a file from Linux to the Linux server
 
 (Adjust path and server details)
 
-```bash
-pscp -i .\financedb_private.ppk ubuntu@IP:/home/ubuntu/git-clones/github/user-repos/financedb/db/market_data.db C:\PATH\financedb\
+``` bash
+scp market_data.db financedb:/home/ubuntu/git-clones/github/user-repos/financedb/db/
+```
+
+## Receive a file on Linux from the Linux server
+
+(Adjust path and server details)
+
+``` bash
+scp financedb:/home/ubuntu/git-clones/github/user-repos/financedb/db/market_data.db .
 ```
