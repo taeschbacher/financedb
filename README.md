@@ -23,15 +23,30 @@ Only **one container runtime is required**.
 
 ### Docker
 
+Allow user to run Docker without sudo (add user to the docker group), e.g. for user ubuntu:
 ``` bash
-chmod +x build_docker.sh
+sudo usermod -aG docker ubuntu
+```
+
+Restart the session or run:
+``` bash
+newgrp docker
+```
+
+After that:
+``` bash
+docker ps
+```
+should work without sudo.
+
+Build the docker image:
+``` bash
 ./build_docker.sh
 ```
 
 ### Podman
 
 ``` bash
-chmod +x build_podman.sh
 ./build_podman.sh
 ```
 
@@ -43,14 +58,12 @@ everything works.
 ### Docker
 
 ``` bash
-chmod +x run_docker.sh
 ./run_docker.sh
 ```
 
 ### Podman
 
 ``` bash
-chmod +x run_podman.sh
 ./run_podman.sh
 ```
 
