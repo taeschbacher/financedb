@@ -30,12 +30,12 @@ The configured ISINs are:
 
 - `CH0237935652`
 - `CH0237935637`
-- `LU0147308422`
 - `IE00B3XXRP09`
+- `LU0147308422`
 - `IE00B3VVMM84`
+- `IE00B0M63177`
 - `IE0005042456`
 - `IE00B95PGT31`
-- `IE000VAHT5T0`
 
 To display the overview interactively as well:
 
